@@ -1,0 +1,885 @@
+{% extends 'layouts/index.html' %}
+
+{% block content %}
+
+
+{% if messages %}
+<div class="message-container">
+  {% for message in messages %}
+  <div class="success-message" id="message-{{ forloop.counter }}">
+    <i class="fas fa-check-circle"></i>
+    <span>{{ message }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<script>
+  // Handle message display
+  document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.success-message');
+    
+    messages.forEach((message, index) => {
+      // Show message with slight delay between multiple messages
+      setTimeout(() => {
+        message.style.opacity = '1';
+        message.style.transform = 'translateY(0)';
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+          message.style.opacity = '0';
+          message.style.transform = 'translateY(-20px)';
+          
+          // Remove from DOM after fade out completes
+          setTimeout(() => {
+            message.remove();
+          }, 300);
+        }, 3000);
+      }, index * 100); // Stagger multiple messages
+    });
+  });
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+  :root {
+    --primary: #0d6efd;
+    --primary-light: #a6c5f7;
+    --primary-lighter: #dce9ff;
+    --primary-lightest: #eef4ff;
+    --text: #222;
+    --text-dark: #102b5d;
+    --text-light: #555;
+    --border: #a6c5f7;
+    --bg: #eef4ff;
+    --card-bg: #ffffff;
+    --danger: #dc3545;
+    --success: #28a745;
+    --warning: #ffc107;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  .bottom-wave {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  .logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .logo:hover {
+    color: #0b5ed7;
+  }
+  
+  .logo-icon {
+    font-size: 22px;
+  }
+  
+  .welcome-message {
+    font-size: 16px;
+    color: var(--text-dark);
+    margin-left: 10px;
+    font-weight: 600;
+  }
+  
+  .nav-container {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .nav-tabs {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .nav-tab {
+    padding: 8px 0;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  
+  .nav-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  
+  .search-bar {
+    padding: 8px 15px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 14px;
+    width: 200px;
+    transition: all 0.3s;
+    background: var(--primary-lightest);
+  }
+  
+  .search-bar:focus {
+    outline: none;
+    border-color: var(--primary);
+    width: 250px;
+    background: white;
+  }
+  
+  .logout-btn {
+    background: #ffebee;
+    color: var(--danger);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+  }
+  
+  .logout-btn:hover {
+    background: #ffcdd2;
+  }
+  
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .note-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(13, 110, 253, 0.1);
+    transition: all 0.2s;
+    position: relative;
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  
+  .note-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.15);
+    border-color: var(--primary-light);
+  }
+  
+  .note-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    color: var(--primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 40px;
+  }
+  
+  .note-content {
+    font-size: 14px;
+    color: var(--text);
+    margin: 0 0 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+  }
+  
+  .note-meta {
+    font-size: 13px;
+    color: var(--text-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .note-author {
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+  
+  .note-date {
+    color: var(--text-light);
+  }
+  
+  .note-status {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 5px;
+    font-weight: 600;
+  }
+  
+  .public {
+    background: #e8f5e9;
+    color: var(--success);
+  }
+  
+  .private {
+    background: #ffebee;
+    color: var(--danger);
+  }
+  
+  .note-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+  }
+  
+  .note-card:hover .note-actions {
+    opacity: 1;
+  }
+  
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-light);
+    text-decoration: none;
+  }
+  
+  .action-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+    transform: scale(1.1);
+  }
+  
+  .delete-btn:hover {
+    background: #ffebee;
+    color: var(--danger);
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    grid-column: 1 / -1;
+  }
+  
+  .empty-icon {
+    font-size: 48px;
+    color: #bdc3c7;
+    margin-bottom: 15px;
+  }
+  
+  .empty-text {
+    color: var(--text-light);
+    font-size: 16px;
+  }
+  
+  .app-footer {
+    text-align: center;
+    margin-top: 50px;
+    padding: 20px 0;
+    color: var(--text-light);
+    font-size: 14px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+  }
+  
+  .fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 100;
+    border: none;
+  }
+  
+  .fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+    background: #0b5ed7;
+  }
+  
+  /* Note View Modal */
+  .note-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  
+  .note-modal-overlay:target {
+    display: flex;
+  }
+  
+  .note-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    width: 600px;
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  
+  .note-modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 15px;
+    padding-right: 30px;
+  }
+  
+  .note-modal-content {
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+  }
+  
+  .note-modal-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+  
+  .note-modal-author {
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+  
+  .note-modal-date {
+    color: var(--text-light);
+  }
+  
+  .note-modal-status {
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .close-modal-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-light);
+    text-decoration: none;
+  }
+  
+  .close-modal-btn:hover {
+    background: #e0e0e0;
+    color: var(--text-dark);
+  }
+  
+  /* Delete Confirmation Modal */
+  .delete-confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .delete-confirmation-modal:target {
+    display: flex;
+  }
+  
+  .delete-confirmation-box {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  
+  .delete-confirmation-title {
+    margin-top: 0;
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  
+  .delete-confirmation-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+  }
+  
+  .delete-confirmation-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+  
+  .delete-cancel-btn {
+    background: #f5f5f5;
+    color: var(--text);
+    border: none;
+  }
+  
+  .delete-cancel-btn:hover {
+    background: #e0e0e0;
+  }
+  
+  .delete-confirm-btn {
+    background: var(--danger);
+    color: white;
+    border: none;
+  }
+  
+  .delete-confirm-btn:hover {
+    background: #c82333;
+  }
+
+  /* Success Message */
+  .success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--success);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1100;
+    animation: fadeInOut 3s ease-in-out;
+  }
+
+  .success-message i {
+    font-size: 1.2rem;
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+  }
+
+  /* Sticky Notes Animation */
+  @keyframes floatDown {
+    0% {
+      transform: translateY(-100px) rotate(-5deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(5deg);
+      opacity: 0;
+    }
+  }
+
+  .sticky-note {
+    position: fixed;
+    top: -100px;
+    width: 150px;
+    padding: 15px;
+    background: #fff9c4;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transform: rotate(-5deg);
+    animation: floatDown linear;
+    pointer-events: none;
+    z-index: 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+</style>
+
+<div class="app-container">
+  <header class="app-header">
+    <div class="logo-container" onclick="location.reload()">
+      <div class="logo">
+        <i class="fas fa-book-open logo-icon"></i>
+        <span>NoteProject</span>
+      </div>
+      {% if user.is_authenticated %}
+        <div class="welcome-message">Welcome, {{ user.username }}</div>
+      {% else %}
+        <div class="welcome-message">Welcome To NoteProject</div>
+      {% endif %}
+    </div>
+    
+    <div class="nav-container">
+      <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('personal')">My Notes</div>
+        <div class="nav-tab" onclick="switchTab('global')">Global Notes</div>
+      </div>
+      
+      <form method="GET" action="">
+        <input type="text" class="search-bar" name="q" placeholder="Search notes..." value="{{ request.GET.q }}" id="searchInput">
+      </form>
+      
+      {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </button>
+        </form>
+      {% else %}
+        <div style="display: flex; gap: 10px;">
+          <a href="{% url 'login' %}" class="login-prompt-btn" style="padding: 8px 15px; border-radius: 20px; background: var(--primary); color: white; text-decoration: none; font-weight: 600;">
+            Login
+          </a>
+          <a href="{% url 'register' %}" class="login-prompt-btn" style="padding: 8px 15px; border-radius: 20px; background: white; color: var(--primary); border: 1px solid var(--primary); text-decoration: none; font-weight: 600;">
+            Sign Up
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="success-message">
+        <i class="fas fa-check-circle"></i>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <main>
+    <div id="personalNotesTab">
+      <div class="notes-grid" id="personalNotesGrid">
+        {% if user.is_authenticated %}
+          {% if user_notes %}
+            {% for note in user_notes %}
+            <div class="note-card" onclick="window.location.href='#viewNote{{ note.id }}'">
+              <div class="note-actions">
+                <a href="{% url 'edit_note' note.id %}" class="action-btn" title="Edit" onclick="event.stopPropagation()">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a href="#deleteNote{{ note.id }}" class="action-btn delete-btn" title="Delete" onclick="event.stopPropagation()">
+                  <i class="fas fa-trash"></i>
+                </a>
+              </div>
+              
+              <h3 class="note-title">{{ note.title }}</h3>
+              <p class="note-content">{{ note.content|truncatechars:100 }}</p>
+              <div class="note-meta">
+                <span class="note-author">Created by {{ note.owner.username }}</span>
+                <span class="note-date">on {{ note.created_at|date:"F j, Y" }}</span>
+              </div>
+              <div class="note-status {% if note.is_public %}public{% else %}private{% endif %}">
+                <i class="fas {% if note.is_public %}fa-unlock{% else %}fa-lock{% endif %}"></i>
+                {% if note.is_public %}Public{% else %}Private{% endif %}
+              </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div id="deleteNote{{ note.id }}" class="delete-confirmation-modal">
+              <div class="delete-confirmation-box">
+                <h3 class="delete-confirmation-title">Confirm Deletion</h3>
+                <p>Are you sure you want to delete "{{ note.title }}"? This action cannot be undone.</p>
+                <div class="delete-confirmation-actions">
+                  <a href="#" class="delete-confirmation-btn delete-cancel-btn">Cancel</a>
+                  <form method="POST" action="{% url 'delete_note' note.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-confirmation-btn delete-confirm-btn">Delete</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="fas fa-book"></i>
+              </div>
+              <p class="empty-text">You don't have any notes yet. Create one to get started!</p>
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-user-lock"></i>
+            </div>
+            <p class="empty-text">Please login to view your personal notes</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div id="globalNotesTab" style="display: none;">
+      <div class="notes-grid" id="globalNotesGrid">
+        {% if global_notes %}
+          {% for note in global_notes %}
+          <div class="note-card" onclick="window.location.href='#viewNote{{ note.id }}'">
+            <h3 class="note-title">{{ note.title }}</h3>
+            <p class="note-content">{{ note.content|truncatechars:100 }}</p>
+            <div class="note-meta">
+              <span class="note-author">Created by {{ note.owner.username }}</span>
+              <span class="note-date">on {{ note.created_at|date:"F j, Y" }}</span>
+            </div>
+            <div class="note-status public">
+              <i class="fas fa-unlock"></i> Public
+            </div>
+          </div>
+
+          <!-- View Modal for Global Notes -->
+          <div id="viewNote{{ note.id }}" class="note-modal-overlay">
+            <div class="note-modal">
+              <a href="#" class="close-modal-btn">
+                <i class="fas fa-times"></i>
+              </a>
+              <h3 class="note-modal-title">{{ note.title }}</h3>
+              <div class="note-modal-meta">
+                <span class="note-modal-author">Created by {{ note.owner.username }}</span>
+                <span class="note-modal-date">on {{ note.created_at|date:"F j, Y" }}</span>
+              </div>
+              <div class="note-modal-status public">
+                <i class="fas fa-unlock"></i> Public
+              </div>
+              <div class="note-modal-content">{{ note.content }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <p class="empty-text">No global notes available at the moment.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+  
+  <footer class="app-footer">
+    Made By Bimarsh
+  </footer>
+</div>
+
+<!-- Bottom wave from login -->
+<div class="bottom-wave" aria-hidden="true">
+  <svg viewBox="0 0 1440 150" preserveAspectRatio="none" width="100%" height="150" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#c2dafb" d="M0,30 C360,90 1080,0 1440,60 L1440,150 L0,150 Z"></path>
+    <path fill="#dce9ff" d="M0,60 C360,120 1080,30 1440,90 L1440,150 L0,150 Z" opacity="0.7"></path>
+  </svg>
+</div>
+
+{% if user.is_authenticated %}
+<a href="{% url 'create_note' %}" class="fab">
+  <i class="fas fa-plus"></i>
+</a>
+{% else %}
+<a href="{% url 'login' %}" class="fab">
+  <i class="fas fa-plus"></i>
+</a>
+{% endif %}
+
+<!-- View Modals for Personal Notes -->
+{% for note in user_notes %}
+<div id="viewNote{{ note.id }}" class="note-modal-overlay">
+  <div class="note-modal">
+    <a href="#" class="close-modal-btn">
+      <i class="fas fa-times"></i>
+    </a>
+    <h3 class="note-modal-title">{{ note.title }}</h3>
+    <div class="note-modal-meta">
+      <span class="note-modal-author">Created by {{ note.owner.username }}</span>
+      <span class="note-modal-date">on {{ note.created_at|date:"F j, Y" }}</span>
+    </div>
+    <div class="note-modal-status {% if note.is_public %}public{% else %}private{% endif %}">
+      <i class="fas {% if note.is_public %}fa-unlock{% else %}fa-lock{% endif %}"></i>
+      {% if note.is_public %}Public{% else %}Private{% endif %}
+    </div>
+    <div class="note-modal-content">{{ note.content }}</div>
+  </div>
+</div>
+{% endfor %}
+
+<script>
+  // Tab switching
+  function switchTab(tabName) {
+    const tabs = document.querySelectorAll('.nav-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    if (tabName === 'personal') {
+      document.getElementById('personalNotesTab').style.display = 'block';
+      document.getElementById('globalNotesTab').style.display = 'none';
+      document.querySelectorAll('.nav-tab')[0].classList.add('active');
+    } else {
+      document.getElementById('personalNotesTab').style.display = 'none';
+      document.getElementById('globalNotesTab').style.display = 'block';
+      document.querySelectorAll('.nav-tab')[1].classList.add('active');
+    }
+  }
+  
+  // Search functionality
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const term = this.value.toLowerCase();
+    const activeTab = document.querySelector('.nav-tab.active').textContent;
+    const gridId = activeTab === 'My Notes' ? 'personalNotesGrid' : 'globalNotesGrid';
+    
+    document.querySelectorAll(`#${gridId} .note-card`).forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(term) ? 'block' : 'none';
+    });
+  });
+
+  // Close modals when clicking outside
+  document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('note-modal-overlay') || 
+        event.target.classList.contains('delete-confirmation-modal')) {
+      window.location.hash = '#';
+    }
+  });
+
+  // Sticky notes animation with even distribution
+  function createStickyNote() {
+    const notes = [
+      "✨ Believe in yourself!",
+      "✅ Grocery\n✅ Finish report\n✅ Call home",
+      "🧘‍♂️ Breathe. Relax.",
+      "📖 Read 10 pages today",
+      "🎯 One step at a time",
+      "📝 Write what matters",
+      "🚿 Take a break!",
+      "☕ Grab some coffee",
+      "🌟 Progress > Perfection",
+      "🎧 Chill & grind",
+      "📌 Don't forget to smile",
+      "🔔 Stay hydrated 💧",
+      "📆 Review your day",
+      "🧠 Reflect & learn",
+      "💡 Focus on one thing",
+      "📋 Plan tomorrow today"
+    ];
+    
+    const note = document.createElement("div");
+    note.classList.add("sticky-note");
+    note.innerText = notes[Math.floor(Math.random() * notes.length)];
+    
+    // Evenly distribute notes across the screen width (10% to 90%)
+    const leftPosition = 10 + (Math.random() * 80);
+    note.style.left = `${leftPosition}vw`;
+    
+    note.style.animationDuration = `${5 + Math.random() * 3}s`;
+    document.body.appendChild(note);
+    setTimeout(() => note.remove(), 9000);
+  }
+  
+  // Create notes at intervals with slightly randomized timing
+  setInterval(createStickyNote, 2000 + Math.random() * 1000);
+</script>
+{% endblock %}

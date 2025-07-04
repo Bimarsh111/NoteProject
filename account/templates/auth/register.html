@@ -1,0 +1,268 @@
+{% extends 'layouts/index.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+  body {
+    background: #eef4ff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bottom-wave {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .header-title {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0d6efd;
+    z-index: 5;
+  }
+
+  .register-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 100px;
+    padding-bottom: 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .register-container {
+    background: linear-gradient(145deg, #dce9ff, #c2dafb);
+    padding: 3.5rem 3rem;
+    border-radius: 16px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 420px;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    color: #222;
+    position: relative;
+    z-index: 3;
+  }
+
+  .register-container h2 {
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+    color: #102b5d;
+    text-align: center;
+  }
+
+  .register-container h2 span {
+    color: #0d6efd;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    color: #333;
+  }
+
+  input.form-control {
+    width: 100%;
+    border: 1px solid #a6c5f7;
+    background-color: #e6f0ff;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    color: #333;
+  }
+
+  input.form-control:focus {
+    border-color: #0d6efd;
+    outline: none;
+    background-color: #dbeaff;
+  }
+
+  .text-danger {
+    font-size: 0.8rem;
+    color: #dc3545;
+    margin-top: 0.3rem;
+    display: block;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background-color: #0d6efd;
+    border: none;
+    padding: 0.6rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 0.8rem;
+    transition: background-color 0.3s;
+  }
+
+  .btn-primary:hover {
+    background-color: #0b5ed7;
+  }
+
+  .btn-link {
+    display: block;
+    margin-top: 1rem;
+    text-align: center;
+    color: #0d6efd;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .btn-link:hover {
+    text-decoration: underline;
+  }
+
+  footer {
+    text-align: center;
+    padding: 12px 0;
+    font-size: 0.9rem;
+    color: #666;
+    border-top: 1px solid #eaeaea;
+    z-index: 2;
+  }
+
+  /* Sticky Notes */
+  .sticky-note {
+    position: fixed;
+    top: -100px;
+    width: 140px;
+    min-height: 100px;
+    background-color: #fffdb7;
+    color: #333;
+    padding: 10px;
+    font-size: 0.85rem;
+    border: 1px solid #e6dc6c;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
+    transform: rotateZ(-5deg);
+    opacity: 0.9;
+    animation: fall linear forwards;
+    z-index: 1;
+    pointer-events: none;
+    white-space: pre-wrap;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(120vh) rotateZ(10deg);
+      opacity: 0;
+    }
+  }
+</style>
+
+<div class="header-title">NoteProject</div>
+
+<div class="register-wrapper">
+  <div class="register-container">
+    <h2>Sign-Up to <span>NoteProject</span></h2>
+
+    {% if form.non_field_errors %}
+      <small class="text-danger">
+        {{ form.non_field_errors.as_ul }}
+      </small>
+    {% endif %}
+
+    <form method="POST" action="{% url 'register' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        <input type="text" name="{{ form.username.name }}" class="form-control" value="{{ form.username.value }}" />
+        <span class="text-danger">{{ form.username.errors }}</span>
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password1.id_for_label }}">Password</label>
+        <input type="password" name="{{ form.password1.name }}" class="form-control" />
+        <span class="text-danger">{{ form.password1.errors }}</span>
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+        <input type="password" name="{{ form.password2.name }}" class="form-control" />
+        <span class="text-danger">{{ form.password2.errors }}</span>
+      </div>
+
+      <button type="submit" class="btn-primary">Sign-Up</button>
+
+      <a href="{% url 'login' %}" class="btn-link">Click here to Login instead!</a>
+    </form>
+  </div>
+</div>
+
+<!-- Bottom wave SVG decoration -->
+<div class="bottom-wave" aria-hidden="true">
+  <svg viewBox="0 0 1440 150" preserveAspectRatio="none" width="100%" height="150" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#c2dafb" d="M0,30 C360,90 1080,0 1440,60 L1440,150 L0,150 Z"></path>
+    <path fill="#dce9ff" d="M0,60 C360,120 1080,30 1440,90 L1440,150 L0,150 Z" opacity="0.7"></path>
+  </svg>
+</div>
+
+<footer>
+  Made By Bimarsh
+</footer>
+
+<script>
+  const notes = [
+    "✨ Believe in yourself!",
+    "✅ Grocery\n✅ Finish report\n✅ Call home",
+    "🧘‍♂️ Breathe. Relax.",
+    "📖 Read 10 pages today",
+    "🎯 One step at a time",
+    "📝 Write what matters",
+    "🚿 Take a break!",
+    "☕ Grab some coffee",
+    "🌟 Progress > Perfection",
+    "🎧 Chill & grind",
+    "📌 Don’t forget to smile",
+    "🔔 Stay hydrated 💧",
+    "📆 Review your day",
+    "🧠 Reflect & learn",
+    "💡 Focus on one thing",
+    "📋 Plan tomorrow today"
+  ];
+
+  function createStickyNote() {
+    const note = document.createElement("div");
+    note.classList.add("sticky-note");
+    note.innerText = notes[Math.floor(Math.random() * notes.length)];
+    note.style.left = `${Math.random() * 90}vw`;
+    note.style.animationDuration = `${5 + Math.random() * 3}s`;
+    document.body.appendChild(note);
+    setTimeout(() => note.remove(), 9000);
+  }
+
+  setInterval(createStickyNote, 1000);
+</script>
+
+{% endblock %}
