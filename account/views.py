@@ -103,12 +103,17 @@ def edit_note(request, note_id):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
         content = request.POST.get('content', '').strip()
-        is_public = request.POST.get('is_public') == 'True'
+        is_public = request.POST.get('is_public') == '1'  # Proper boolean conversion
         
-        if not content:
+        # Validate both title and content
+        if not content or not title:
+            error_msg = 'Content is required' if not content else 'Title is required'
             return render(request, 'edit_note.html', {
-                'error': 'Content is required',
-                'note': note
+                'error': error_msg,
+                'note': note,
+                'title': title,
+                'content': content,
+                'is_public': is_public
             })
         
         try:
@@ -116,15 +121,25 @@ def edit_note(request, note_id):
             note.content = content
             note.is_public = is_public
             note.save()
+            
             messages.success(request, 'Note updated successfully!')
-            return redirect('dashboard')
+            return redirect(f"{reverse('dashboard')}?show_personal=1")
+            
         except Exception as e:
             return render(request, 'edit_note.html', {
                 'error': f'Error updating note: {str(e)}',
-                'note': note
+                'note': note,
+                'title': title,
+                'content': content,
+                'is_public': is_public
             })
     
-    return render(request, 'edit_note.html', {'note': note})
+    return render(request, 'edit_note.html', {
+        'note': note,
+        'title': note.title,
+        'content': note.content,
+        'is_public': note.is_public
+    })
 
 @login_required
 def delete_note(request, note_id):

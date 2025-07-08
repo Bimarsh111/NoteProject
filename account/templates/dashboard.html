@@ -2,7 +2,6 @@
 
 {% block content %}
 
-
 {% if messages %}
 <div class="message-container">
   {% for message in messages %}
@@ -13,32 +12,6 @@
   {% endfor %}
 </div>
 {% endif %}
-
-<script>
-  // Handle message display
-  document.addEventListener('DOMContentLoaded', function() {
-    const messages = document.querySelectorAll('.success-message');
-    
-    messages.forEach((message, index) => {
-      // Show message with slight delay between multiple messages
-      setTimeout(() => {
-        message.style.opacity = '1';
-        message.style.transform = 'translateY(0)';
-        
-        // Auto-hide after 3 seconds
-        setTimeout(() => {
-          message.style.opacity = '0';
-          message.style.transform = 'translateY(-20px)';
-          
-          // Remove from DOM after fade out completes
-          setTimeout(() => {
-            message.remove();
-          }, 300);
-        }, 3000);
-      }, index * 100); // Stagger multiple messages
-    });
-  });
-</script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <style>
@@ -369,7 +342,6 @@
     background: #0b5ed7;
   }
   
-  /* Note View Modal */
   .note-modal-overlay {
     position: fixed;
     top: 0;
@@ -467,7 +439,6 @@
     color: var(--text-dark);
   }
   
-  /* Delete Confirmation Modal */
   .delete-confirmation-modal {
     position: fixed;
     top: 0;
@@ -540,7 +511,6 @@
     background: #c82333;
   }
 
-  /* Success Message */
   .success-message {
     position: fixed;
     top: 20px;
@@ -554,21 +524,9 @@
     align-items: center;
     gap: 10px;
     z-index: 1100;
-    animation: fadeInOut 3s ease-in-out;
+    transition: all 0.3s ease;
   }
 
-  .success-message i {
-    font-size: 1.2rem;
-  }
-
-  @keyframes fadeInOut {
-    0% { opacity: 0; transform: translateY(-20px); }
-    10% { opacity: 1; transform: translateY(0); }
-    90% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-20px); }
-  }
-
-  /* Sticky Notes Animation */
   @keyframes floatDown {
     0% {
       transform: translateY(-100px) rotate(-5deg);
@@ -604,7 +562,7 @@
 
 <div class="app-container">
   <header class="app-header">
-    <div class="logo-container" onclick="location.reload()">
+    <div class="logo-container" onclick="window.location.href='{% url 'dashboard' %}'">
       <div class="logo">
         <i class="fas fa-book-open logo-icon"></i>
         <span>NoteProject</span>
@@ -618,8 +576,8 @@
     
     <div class="nav-container">
       <div class="nav-tabs">
-        <div class="nav-tab active" onclick="switchTab('personal')">My Notes</div>
-        <div class="nav-tab" onclick="switchTab('global')">Global Notes</div>
+        <div class="nav-tab" id="personalTabBtn">My Notes</div>
+        <div class="nav-tab active" id="globalTabBtn">Global Notes</div>
       </div>
       
       <form method="GET" action="">
@@ -647,17 +605,8 @@
     </div>
   </header>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="success-message">
-        <i class="fas fa-check-circle"></i>
-        <span>{{ message }}</span>
-      </div>
-    {% endfor %}
-  {% endif %}
-
   <main>
-    <div id="personalNotesTab">
+    <div id="personalNotesTab" style="display: none;">
       <div class="notes-grid" id="personalNotesGrid">
         {% if user.is_authenticated %}
           {% if user_notes %}
@@ -684,7 +633,6 @@
               </div>
             </div>
 
-            <!-- Delete Confirmation Modal -->
             <div id="deleteNote{{ note.id }}" class="delete-confirmation-modal">
               <div class="delete-confirmation-box">
                 <h3 class="delete-confirmation-title">Confirm Deletion</h3>
@@ -718,7 +666,7 @@
       </div>
     </div>
     
-    <div id="globalNotesTab" style="display: none;">
+    <div id="globalNotesTab">
       <div class="notes-grid" id="globalNotesGrid">
         {% if global_notes %}
           {% for note in global_notes %}
@@ -734,7 +682,6 @@
             </div>
           </div>
 
-          <!-- View Modal for Global Notes -->
           <div id="viewNote{{ note.id }}" class="note-modal-overlay">
             <div class="note-modal">
               <a href="#" class="close-modal-btn">
@@ -769,7 +716,6 @@
   </footer>
 </div>
 
-<!-- Bottom wave from login -->
 <div class="bottom-wave" aria-hidden="true">
   <svg viewBox="0 0 1440 150" preserveAspectRatio="none" width="100%" height="150" xmlns="http://www.w3.org/2000/svg">
     <path fill="#c2dafb" d="M0,30 C360,90 1080,0 1440,60 L1440,150 L0,150 Z"></path>
@@ -787,7 +733,6 @@
 </a>
 {% endif %}
 
-<!-- View Modals for Personal Notes -->
 {% for note in user_notes %}
 <div id="viewNote{{ note.id }}" class="note-modal-overlay">
   <div class="note-modal">
@@ -809,7 +754,15 @@
 {% endfor %}
 
 <script>
-  // Tab switching
+  // Tab switching with proper event listeners
+  document.getElementById('personalTabBtn').addEventListener('click', function() {
+    switchTab('personal');
+  });
+  
+  document.getElementById('globalTabBtn').addEventListener('click', function() {
+    switchTab('global');
+  });
+
   function switchTab(tabName) {
     const tabs = document.querySelectorAll('.nav-tab');
     tabs.forEach(tab => tab.classList.remove('active'));
@@ -817,14 +770,51 @@
     if (tabName === 'personal') {
       document.getElementById('personalNotesTab').style.display = 'block';
       document.getElementById('globalNotesTab').style.display = 'none';
-      document.querySelectorAll('.nav-tab')[0].classList.add('active');
+      document.getElementById('personalTabBtn').classList.add('active');
     } else {
       document.getElementById('personalNotesTab').style.display = 'none';
       document.getElementById('globalNotesTab').style.display = 'block';
-      document.querySelectorAll('.nav-tab')[1].classList.add('active');
+      document.getElementById('globalTabBtn').classList.add('active');
+      
+      // Force refresh of global notes
+      fetch(window.location.pathname + '?refresh_global=1')
+        .then(response => response.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          document.getElementById('globalNotesGrid').innerHTML = 
+            doc.getElementById('globalNotesGrid').innerHTML;
+        });
     }
   }
-  
+
+  // Initialize with global notes shown
+  document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('show_personal')) {
+      switchTab('personal');
+      history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      switchTab('global');
+    }
+    
+    // Message handling
+    const messages = document.querySelectorAll('.success-message');
+    messages.forEach((message, index) => {
+      setTimeout(() => {
+        message.style.opacity = '1';
+        message.style.transform = 'translateY(0)';
+        
+        setTimeout(() => {
+          message.style.opacity = '0';
+          message.style.transform = 'translateY(-20px)';
+          
+          setTimeout(() => message.remove(), 300);
+        }, 3000);
+      }, index * 300);
+    });
+  });
+
   // Search functionality
   document.getElementById('searchInput').addEventListener('input', function() {
     const term = this.value.toLowerCase();
@@ -845,7 +835,7 @@
     }
   });
 
-  // Sticky notes animation with even distribution
+  // Sticky notes animation
   function createStickyNote() {
     const notes = [
       "✨ Believe in yourself!",
@@ -870,16 +860,13 @@
     note.classList.add("sticky-note");
     note.innerText = notes[Math.floor(Math.random() * notes.length)];
     
-    // Evenly distribute notes across the screen width (10% to 90%)
     const leftPosition = 10 + (Math.random() * 80);
     note.style.left = `${leftPosition}vw`;
-    
     note.style.animationDuration = `${5 + Math.random() * 3}s`;
     document.body.appendChild(note);
     setTimeout(() => note.remove(), 9000);
   }
   
-  // Create notes at intervals with slightly randomized timing
   setInterval(createStickyNote, 2000 + Math.random() * 1000);
 </script>
 {% endblock %}

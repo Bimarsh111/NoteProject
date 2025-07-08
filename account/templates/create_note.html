@@ -1,30 +1,123 @@
 {% extends 'layouts/index.html' %}
 
-{% block title %}Create Your Own Note{% endblock %}
+{% block title %}Create New Note{% endblock %}
 
-{% block extra_head %}
+{% block content %}
+<div class="app-container">
+  <!-- Simplified Header -->
+  <header class="app-header">
+    <div class="logo-container" onclick="window.location.href='{% url 'dashboard' %}'">
+      <div class="logo">
+        <i class="fas fa-book-open logo-icon"></i>
+        <span>NoteProject</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Form Content -->
+  <div class="form-container">
+    <div class="form-header">
+      <h2><i class="fas fa-plus-circle"></i> Create New Note</h2>
+      <a href="{% url 'dashboard' %}" class="close-btn">
+        <i class="fas fa-times"></i>
+      </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="message-container">
+      {% for message in messages %}
+      <div class="success-message">
+        <i class="fas fa-check-circle"></i>
+        <span>{{ message }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Form -->
+    <form method="POST" action="">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" value="{{ title|default:'' }}" placeholder="Enter note title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="content">Content</label>
+        <textarea id="content" name="content" rows="8" placeholder="Enter note content" required>{{ content|default:'' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="visibility">Visibility</label>
+        <select id="visibility" name="is_public">
+          <option value="0" {% if not is_public %}selected{% endif %}>Private</option>
+          <option value="1" {% if is_public %}selected{% endif %}>Public</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <a href="{% url 'dashboard' %}" class="btn-cancel">
+          <i class="fas fa-times"></i> Cancel
+        </a>
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-save"></i> Save Note
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <style>
-  .form-container {
-    max-width: 600px;
-    margin: 2rem auto;
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.15);
-    border: 1px solid #a6c5f7;
+  /* Dashboard Matching Styles */
+  :root {
+    --primary: #0d6efd;
+    --primary-light: #a6c5f7;
+    --primary-lighter: #dce9ff;
+    --primary-lightest: #eef4ff;
+    --text: #222;
+    --text-dark: #102b5d;
+    --text-light: #555;
+    --border: #a6c5f7;
+    --bg: #eef4ff;
+    --card-bg: #ffffff;
+    --danger: #dc3545;
+    --success: #28a745;
+    --warning: #ffc107;
   }
 
-  .logo-header {
+  body {
+    background: var(--bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+  }
+
+  .app-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    margin-bottom: 20px;
+  }
+
+  .logo-container {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 1.5rem;
+    cursor: pointer;
   }
 
   .logo {
     font-size: 24px;
     font-weight: 800;
-    color: #0d6efd;
+    color: var(--primary);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -34,78 +127,121 @@
     font-size: 22px;
   }
 
-  h2 {
-    color: #0d6efd;
-    margin-bottom: 1.5rem;
+  /* Form Styles */
+  .form-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 14px rgba(13, 110, 253, 0.1);
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+
+  .form-header h2 {
+    color: var(--primary);
+    margin: 0;
     font-size: 1.8rem;
-    font-weight: 700;
   }
 
-  label {
+  .close-btn {
+    color: var(--danger);
+    font-size: 1.5rem;
+    transition: all 0.2s;
+  }
+
+  .close-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
     display: block;
-    margin-top: 1.5rem;
+    margin-bottom: 8px;
     font-weight: 600;
-    color: #102b5d;
+    color: var(--text-dark);
   }
 
-  input[type="text"], textarea, select {
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
     width: 100%;
-    padding: 0.8rem;
-    font-size: 1rem;
+    padding: 12px;
+    border: 1px solid var(--border);
     border-radius: 8px;
-    border: 1px solid #a6c5f7;
-    margin-top: 0.5rem;
-    background: #eef4ff;
+    font-size: 1rem;
+    background: var(--primary-lightest);
     transition: all 0.3s;
   }
 
-  input[type="text"]:focus, textarea:focus, select:focus {
+  .form-group textarea {
+    min-height: 200px;
+    resize: vertical;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
     outline: none;
-    border-color: #0d6efd;
+    border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
     background: white;
   }
 
-  textarea {
-    resize: vertical;
-    min-height: 200px;
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .btn-cancel {
+    background: var(--danger);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover {
+    background: #c82333;
+    transform: translateY(-2px);
   }
 
   .btn-submit {
-    margin-top: 2rem;
-    background-color: #0d6efd;
+    background: var(--primary);
     color: white;
-    padding: 0.8rem 1.5rem;
+    padding: 12px 20px;
     border: none;
     border-radius: 8px;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 1rem;
-    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     transition: all 0.2s;
   }
 
   .btn-submit:hover {
-    background-color: #0b5ed7;
+    background: #0b5ed7;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
   }
 
-  .error {
-    color: #dc3545;
-    margin-top: 0.5rem;
-    font-weight: 600;
-    padding: 0.5rem;
-    background: #ffebee;
-    border-radius: 6px;
-  }
-
-  .required-field::after {
-    content: " *";
-    color: #dc3545;
-  }
-
-  /* Messages styling */
+  /* Messages */
   .message-container {
     position: fixed;
     top: 20px;
@@ -113,110 +249,37 @@
     z-index: 1000;
   }
 
-  .message {
+  .success-message {
+    background: var(--success);
+    color: white;
     padding: 15px 25px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     display: flex;
     align-items: center;
+    gap: 10px;
     margin-bottom: 10px;
-    animation: slideIn 0.5s forwards;
+    animation: fadeInOut 3s ease-in-out;
   }
 
-  .message-success {
-    background: #4CAF50;
-    color: white;
-  }
-
-  .message-error {
-    background: #dc3545;
-    color: white;
-  }
-
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  .message-close {
-    margin-left: 15px;
-    cursor: pointer;
-    font-weight: bold;
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
   }
 </style>
-{% endblock %}
-
-{% block content %}
-<div class="form-container">
-  <div class="logo-header">
-    <div class="logo">
-      <i class="fas fa-book-open logo-icon"></i>
-      <span>NoteProject</span>
-    </div>
-  </div>
-
-  <h2><i class="fas fa-plus-circle"></i> Create New Note</h2>
-
-  <!-- Messages container -->
-  <div class="message-container">
-    {% for message in messages %}
-      <div class="message message-{{ message.tags }}">
-        {% if message.tags == 'success' %}
-          <i class="fas fa-check-circle"></i>
-        {% elif message.tags == 'error' %}
-          <i class="fas fa-exclamation-circle"></i>
-        {% endif %}
-        <span>{{ message }}</span>
-        <span class="message-close" onclick="this.parentElement.remove()">×</span>
-      </div>
-    {% endfor %}
-  </div>
-
-  <!-- Form error message -->
-  {% if error %}
-    <div class="error">
-      <i class="fas fa-exclamation-circle"></i>
-      {{ error }}
-    </div>
-  {% endif %}
-
-  <form method="POST" action="" id="noteForm">
-    {% csrf_token %}
-    <label for="title">Title</label>
-    <input type="text" id="title" name="title" value="{{ title|default:'' }}" placeholder="Enter note title">
-
-    <label for="content" class="required-field">Content</label>
-    <textarea id="content" name="content" rows="6" placeholder="Enter note content" required>{{ content|default:'' }}</textarea>
-
-    <label for="visibility">Visibility</label>
-    <select id="visibility" name="is_public">
-      <option value="0" {% if not is_public %}selected{% endif %}>Private</option>
-      <option value="1" {% if is_public %}selected{% endif %}>Public</option>
-    </select>
-
-    <button type="submit" class="btn-submit">
-      <i class="fas fa-save"></i> Create Note
-    </button>
-  </form>
-</div>
 
 <script>
-// Auto-hide messages after 5 seconds
-document.addEventListener('DOMContentLoaded', function() {
-    const messages = document.querySelectorAll('.message');
-    messages.forEach(msg => {
-        setTimeout(() => {
-            msg.remove();
-        }, 5000);
-    });
-    
-    // Remove error message after 5 seconds
-    const errorMsg = document.querySelector('.error');
-    if (errorMsg) {
-        setTimeout(() => {
-            errorMsg.remove();
-        }, 5000);
-    }
-});
+  // Auto-close messages after 3 seconds
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+      const messages = document.querySelectorAll('.success-message');
+      messages.forEach(msg => {
+        msg.style.opacity = '0';
+        setTimeout(() => msg.remove(), 300);
+      });
+    }, 3000);
+  });
 </script>
 {% endblock %}
