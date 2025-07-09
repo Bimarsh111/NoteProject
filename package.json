@@ -1,0 +1,12 @@
+{
+  "name": "noteproject-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo \"No build step configured yet\"",
+    "start": "echo \"No start script configured yet\""
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
